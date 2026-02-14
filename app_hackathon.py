@@ -1,11 +1,11 @@
 """
-HACKATHON AI TRIAGE SYSTEM - STREAMLIT DASHBOARD
-=================================================
-Complete AI-powered triage system with:
-- Risk classification
-- Department recommendation
-- Explainability layer
-- Professional UI
+HACKATHON AI TRIAGE SYSTEM - MULTI-STEP STREAMLIT APP
+======================================================
+Step-by-step patient intake matching Next.js UI flow:
+1. Vitals
+2. Symptoms
+3. History
+4. Review & Results
 """
 
 import streamlit as st
@@ -13,80 +13,171 @@ import pandas as pd
 import numpy as np
 import joblib
 import plotly.graph_objects as go
-import plotly.express as px
 from datetime import datetime
 
 # ============================================================================
 # PAGE CONFIGURATION
 # ============================================================================
 st.set_page_config(
-    page_title="AI Medical Triage System",
+    page_title="MedTouch.ai Patient Intake",
     page_icon="🏥",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Custom CSS
+# Custom CSS matching the modern UI
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 10px;
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Main container styling */
+    .main {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
     }
-    .sub-header {
-        font-size: 1.1rem;
-        text-align: center;
-        color: #666;
-        margin-bottom: 20px;
+    
+    /* Card styling */
+    .stApp > div > div {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(147, 197, 253, 0.5);
     }
+    
+    /* Progress bar container */
+    .stepper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        padding: 1rem 0;
+        border-bottom: 2px solid #e5e7eb;
+    }
+    
+    .step {
+        flex: 1;
+        text-align: center;
+        font-weight: 600;
+        color: #9ca3af;
+        transition: all 0.3s ease;
+    }
+    
+    .step-active {
+        color: #2563eb;
+        transform: scale(1.1);
+    }
+    
+    /* Header styling */
+    h1 {
+        color: #1e40af;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+    }
+    
+    h2 {
+        color: #1f2937;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Risk level cards */
     .risk-high {
-        background-color: #ff4444;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 2rem;
+        border-radius: 16px;
         text-align: center;
         font-size: 2rem;
         font-weight: bold;
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
     }
+    
     .risk-medium {
-        background-color: #ffaa00;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: white;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 2rem;
+        border-radius: 16px;
         text-align: center;
         font-size: 2rem;
         font-weight: bold;
+        box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
     }
+    
     .risk-low {
-        background-color: #00cc66;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 2rem;
+        border-radius: 16px;
         text-align: center;
         font-size: 2rem;
         font-weight: bold;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
     }
-    .metric-box {
-        background-color: #f0f2f6;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 10px 0;
-    }
+    
+    /* Factor box */
     .factor-box {
-        background-color: #e8f4f8;
-        padding: 10px;
-        border-radius: 5px;
-        margin: 5px 0;
-        border-left: 4px solid #1f77b4;
+        background: linear-gradient(to right, #eff6ff, #dbeafe);
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 0.5rem 0;
+        border-left: 4px solid #2563eb;
+    }
+    
+    /* Department box */
+    .dept-box {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 1rem 0;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+    }
+    
+    /* Button styling */
+    .stButton > button {
+        width: 100%;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(37, 99, 235, 0.4);
+    }
+    
+    /* Symptom card styling */
+    div[data-testid="stCheckbox"] {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    div[data-testid="stCheckbox"]:hover {
+        border-color: #2563eb;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# LOAD MODELS AND ENCODERS
+# LOAD MODELS
 # ============================================================================
 @st.cache_resource
 def load_models():
@@ -101,614 +192,505 @@ def load_models():
         }
         return models, None
     except FileNotFoundError as e:
-        error_msg = f"Error loading models: {e.filename} not found. Please run train_hackathon_model.py first!"
-        return None, error_msg
+        return None, f"Missing file: {e.filename}"
 
 models, error = load_models()
 
 if error:
-    st.error(error)
+    st.error(f"❌ {error}")
+    st.info("Please ensure all model files are in the same directory as this app.")
     st.stop()
 
 # ============================================================================
-# PREDICTION FUNCTIONS
+# SESSION STATE INITIALIZATION
 # ============================================================================
+if 'step' not in st.session_state:
+    st.session_state.step = 1
+
+if 'form_data' not in st.session_state:
+    st.session_state.form_data = {
+        'age': 45,
+        'gender': 'Male',
+        'systolic_bp': 120,
+        'diastolic_bp': 80,
+        'heart_rate': 80,
+        'temperature': 36.8,
+        'symptoms': [],
+        'pre_existing': 'No History'
+    }
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+def next_step():
+    """Move to next step"""
+    st.session_state.step += 1
+
+def prev_step():
+    """Move to previous step"""
+    st.session_state.step -= 1
+
+def reset_form():
+    """Reset to step 1"""
+    st.session_state.step = 1
+    st.session_state.form_data = {
+        'age': 45,
+        'gender': 'Male',
+        'systolic_bp': 120,
+        'diastolic_bp': 80,
+        'heart_rate': 80,
+        'temperature': 36.8,
+        'symptoms': [],
+        'pre_existing': 'No History'
+    }
+
 def explain_prediction(patient_data, risk_level):
-    """Generate human-readable explanation"""
+    """Generate explanation factors"""
     factors = []
     
-    # Age analysis
-    age = patient_data['Age']
+    age = patient_data['age']
     if age > 65 and risk_level == 'High':
         factors.append(f"🔴 Advanced age ({age} years) increases risk significantly")
     elif age > 65:
-        factors.append(f"⚠️ Elderly patient ({age} years) - age is a risk factor")
-    elif age < 30 and risk_level == 'Low':
+        factors.append(f"⚠️ Elderly patient ({age} years)")
+    elif age < 30:
         factors.append(f"✅ Young patient ({age} years) - lower baseline risk")
-    else:
-        factors.append(f"📊 Patient age: {age} years")
     
-    # Blood Pressure
-    bp_sys = patient_data['Systolic_BP']
-    bp_dia = patient_data['Diastolic_BP']
+    bp_sys = patient_data['systolic_bp']
+    bp_dia = patient_data['diastolic_bp']
     
     if bp_sys > 180 or bp_dia > 100:
-        factors.append(f"🔴 Hypertensive crisis (BP: {bp_sys}/{bp_dia}) - immediate concern")
-    elif bp_sys > 160 or bp_dia > 95:
-        factors.append(f"⚠️ Severely elevated blood pressure ({bp_sys}/{bp_dia})")
+        factors.append(f"🔴 Hypertensive crisis (BP: {bp_sys}/{bp_dia})")
     elif bp_sys > 140 or bp_dia > 90:
         factors.append(f"⚠️ Elevated blood pressure ({bp_sys}/{bp_dia})")
-    elif bp_sys < 90 or bp_dia < 60:
-        factors.append(f"🔴 Low blood pressure ({bp_sys}/{bp_dia}) - potential shock")
+    elif bp_sys < 90:
+        factors.append(f"🔴 Low blood pressure ({bp_sys}/{bp_dia})")
     else:
         factors.append(f"✅ Normal blood pressure ({bp_sys}/{bp_dia})")
     
-    # Heart Rate
-    hr = patient_data['Heart_Rate']
+    hr = patient_data['heart_rate']
     if hr > 120:
-        factors.append(f"🔴 Severe tachycardia ({hr} BPM) - significant concern")
+        factors.append(f"🔴 Severe tachycardia ({hr} BPM)")
     elif hr > 100:
-        factors.append(f"⚠️ Tachycardia ({hr} BPM) - elevated heart rate")
+        factors.append(f"⚠️ Tachycardia ({hr} BPM)")
     elif hr < 50:
-        factors.append(f"⚠️ Bradycardia ({hr} BPM) - slow heart rate")
+        factors.append(f"⚠️ Bradycardia ({hr} BPM)")
     else:
         factors.append(f"✅ Normal heart rate ({hr} BPM)")
     
-    # Temperature
-    temp = patient_data['Temperature']
+    temp = patient_data['temperature']
     if temp > 39.0:
-        factors.append(f"🔴 High fever ({temp}°C) - indicates infection")
+        factors.append(f"🔴 High fever ({temp}°C)")
     elif temp > 38.0:
         factors.append(f"⚠️ Fever present ({temp}°C)")
     elif temp < 36.0:
-        factors.append(f"🔴 Hypothermia ({temp}°C) - concerning")
+        factors.append(f"🔴 Hypothermia ({temp}°C)")
     else:
         factors.append(f"✅ Normal temperature ({temp}°C)")
     
     # Symptoms
-    symptom = patient_data['Symptoms']
-    critical_symptoms = ['Chest Pain', 'Difficulty Breathing', 'Stroke Symptoms', 
-                        'Severe Headache', 'Confusion', 'Seizure', 'Severe Bleeding']
-    if symptom in critical_symptoms:
-        factors.append(f"🔴 CRITICAL symptom: {symptom}")
-    else:
-        factors.append(f"📋 Presenting symptom: {symptom}")
+    if patient_data['symptoms']:
+        symptom = patient_data['symptoms'][0] if isinstance(patient_data['symptoms'], list) else patient_data['symptoms']
+        critical = ['Chest Pain', 'Difficulty Breathing', 'Stroke Symptoms', 'Severe Headache']
+        if symptom in critical:
+            factors.append(f"🔴 CRITICAL symptom: {symptom}")
+        else:
+            factors.append(f"📋 Symptom: {symptom}")
     
-    # Pre-existing
-    condition = patient_data['Pre_Existing']
+    condition = patient_data['pre_existing']
     high_risk = ['Heart Disease', 'Stroke History', 'COPD', 'Kidney Disease']
     if condition in high_risk:
         factors.append(f"⚠️ High-risk condition: {condition}")
     elif condition != 'No History':
         factors.append(f"📋 Pre-existing: {condition}")
-    else:
-        factors.append(f"✅ No pre-existing conditions")
     
     return factors
 
 def make_prediction(patient_data):
-    """Make prediction using loaded models"""
-    # Encode inputs
+    """Make prediction"""
     try:
-        gender_enc = models['le_gender'].transform([patient_data['Gender']])[0]
-        symptom_enc = models['le_symptoms'].transform([patient_data['Symptoms']])[0]
-        pre_enc = models['le_pre_existing'].transform([patient_data['Pre_Existing']])[0]
-    except ValueError as e:
+        # Get primary symptom
+        symptom = patient_data['symptoms'][0] if patient_data['symptoms'] else 'Fatigue'
+        
+        # Encode
+        gender_enc = models['le_gender'].transform([patient_data['gender']])[0]
+        symptom_enc = models['le_symptoms'].transform([symptom])[0]
+        pre_enc = models['le_pre_existing'].transform([patient_data['pre_existing']])[0]
+        
+        # Create features
+        features = pd.DataFrame([[
+            patient_data['age'],
+            gender_enc,
+            patient_data['systolic_bp'],
+            patient_data['diastolic_bp'],
+            patient_data['heart_rate'],
+            patient_data['temperature'],
+            symptom_enc,
+            pre_enc
+        ]], columns=['Age', 'Gender_Encoded', 'Systolic_BP', 'Diastolic_BP',
+                     'Heart_Rate', 'Temperature', 'Symptoms_Encoded', 'Pre_Existing_Encoded'])
+        
+        # Predict
+        risk = models['risk_model'].predict(features)[0]
+        risk_proba = models['risk_model'].predict_proba(features)[0]
+        risk_conf = risk_proba[list(models['risk_model'].classes_).index(risk)] * 100
+        
+        dept = models['dept_model'].predict(features)[0]
+        dept_proba = models['dept_model'].predict_proba(features)[0]
+        dept_conf = dept_proba[list(models['dept_model'].classes_).index(dept)] * 100
+        
+        risk_probs = {cls: prob*100 for cls, prob in zip(models['risk_model'].classes_, risk_proba)}
+        
+        return {
+            'risk': risk,
+            'risk_confidence': risk_conf,
+            'risk_probs': risk_probs,
+            'department': dept,
+            'dept_confidence': dept_conf,
+            'factors': explain_prediction(patient_data, risk)
+        }
+    except Exception as e:
         return {'error': str(e)}
-    
-    # Create feature vector
-    features = pd.DataFrame([[
-        patient_data['Age'],
-        gender_enc,
-        patient_data['Systolic_BP'],
-        patient_data['Diastolic_BP'],
-        patient_data['Heart_Rate'],
-        patient_data['Temperature'],
-        symptom_enc,
-        pre_enc
-    ]], columns=['Age', 'Gender_Encoded', 'Systolic_BP', 'Diastolic_BP',
-                 'Heart_Rate', 'Temperature', 'Symptoms_Encoded', 'Pre_Existing_Encoded'])
-    
-    # Predict
-    risk_pred = models['risk_model'].predict(features)[0]
-    risk_proba = models['risk_model'].predict_proba(features)[0]
-    risk_conf = risk_proba[list(models['risk_model'].classes_).index(risk_pred)] * 100
-    
-    dept_pred = models['dept_model'].predict(features)[0]
-    dept_proba = models['dept_model'].predict_proba(features)[0]
-    dept_conf = dept_proba[list(models['dept_model'].classes_).index(dept_pred)] * 100
-    
-    # Get probabilities
-    risk_probs = {cls: prob*100 for cls, prob in zip(models['risk_model'].classes_, risk_proba)}
-    dept_probs = {cls: prob*100 for cls, prob in zip(models['dept_model'].classes_, dept_proba)}
-    
-    # Get feature importance
-    risk_importance = models['risk_model'].feature_importances_
-    dept_importance = models['dept_model'].feature_importances_
-    
-    feature_names = ['Age', 'Gender', 'Systolic_BP', 'Diastolic_BP', 
-                    'Heart_Rate', 'Temperature', 'Symptoms', 'Pre_Existing']
-    
-    return {
-        'risk_level': risk_pred,
-        'risk_confidence': risk_conf,
-        'risk_probabilities': risk_probs,
-        'department': dept_pred,
-        'dept_confidence': dept_conf,
-        'dept_probabilities': dept_probs,
-        'factors': explain_prediction(patient_data, risk_pred),
-        'risk_importance': {name: imp*100 for name, imp in zip(feature_names, risk_importance)},
-        'dept_importance': {name: imp*100 for name, imp in zip(feature_names, dept_importance)}
-    }
 
 # ============================================================================
-# HEADER
+# STEPPER COMPONENT
 # ============================================================================
-st.markdown('<p class="main-header">🏥 AI Medical Triage System</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-header">Intelligent Patient Risk Assessment & Department Routing</p>', unsafe_allow_html=True)
-st.markdown("---")
+def render_stepper(current_step):
+    """Render progress stepper"""
+    steps = ["Vitals", "Symptoms", "History", "Review"]
+    
+    stepper_html = '<div class="stepper">'
+    for i, label in enumerate(steps, 1):
+        active_class = 'step-active' if i == current_step else ''
+        stepper_html += f'<div class="step {active_class}">{label}</div>'
+    stepper_html += '</div>'
+    
+    st.markdown(stepper_html, unsafe_allow_html=True)
 
 # ============================================================================
-# TABS
+# MAIN APP
 # ============================================================================
-tab1, tab2, tab3, tab4 = st.tabs(["📋 Patient Assessment", "📊 System Performance", "📚 About", "🔬 Batch Analysis"])
+
+# Header
+st.markdown("# 🏥 MedTouch.ai Patient Intake")
+
+# Stepper
+render_stepper(st.session_state.step)
 
 # ============================================================================
-# TAB 1: PATIENT ASSESSMENT
+# STEP 1: VITALS
 # ============================================================================
-with tab1:
-    st.markdown("### Enter Patient Information")
+if st.session_state.step == 1:
+    st.markdown("## Patient Information")
+    st.markdown("*Demographics & Clinical Vitals*")
+    st.markdown("")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("#### Demographics")
-        age = st.number_input("Age (years)", min_value=1, max_value=120, value=45)
-        gender = st.selectbox("Gender", options=['Male', 'Female'])
+        st.markdown("### Demographics")
         
-        st.markdown("#### Vital Signs")
-        bp_sys = st.slider("Systolic Blood Pressure (mmHg)", 60, 230, 120)
-        bp_dia = st.slider("Diastolic Blood Pressure (mmHg)", 40, 130, 80)
+        # Age
+        st.session_state.form_data['age'] = st.number_input(
+            "Patient Age",
+            min_value=0,
+            max_value=120,
+            value=st.session_state.form_data['age'],
+            help="Enter patient's age in years"
+        )
         
+        # Gender
+        st.session_state.form_data['gender'] = st.selectbox(
+            "Gender",
+            options=['Male', 'Female'],
+            index=0 if st.session_state.form_data['gender'] == 'Male' else 1
+        )
+        
+        st.markdown("### Blood Pressure")
+        
+        # Systolic BP
+        st.session_state.form_data['systolic_bp'] = st.slider(
+            "Systolic BP (mmHg)",
+            min_value=80,
+            max_value=220,
+            value=st.session_state.form_data['systolic_bp'],
+            help="Normal: 90-120 mmHg"
+        )
+        
+        # Diastolic BP
+        st.session_state.form_data['diastolic_bp'] = st.slider(
+            "Diastolic BP (mmHg)",
+            min_value=40,
+            max_value=130,
+            value=st.session_state.form_data['diastolic_bp'],
+            help="Normal: 60-80 mmHg"
+        )
+    
     with col2:
-        st.markdown("#### Clinical Information")
-        hr = st.slider("Heart Rate (BPM)", 35, 180, 75)
-        temp = st.number_input("Temperature (°C)", 34.0, 42.0, 37.0, 0.1)
+        st.markdown("### Vital Signs")
         
-        symptom = st.selectbox(
-            "Primary Symptom",
-            options=sorted(models['le_symptoms'].classes_)
+        # Heart Rate
+        st.session_state.form_data['heart_rate'] = st.slider(
+            "Heart Rate (BPM)",
+            min_value=30,
+            max_value=200,
+            value=st.session_state.form_data['heart_rate'],
+            help="Normal: 60-100 BPM"
         )
         
-        pre_existing = st.selectbox(
-            "Pre-Existing Condition",
-            options=sorted(models['le_pre_existing'].classes_)
+        # Temperature
+        st.session_state.form_data['temperature'] = st.number_input(
+            "Temperature (°C)",
+            min_value=34.0,
+            max_value=42.0,
+            value=st.session_state.form_data['temperature'],
+            step=0.1,
+            help="Normal: 36.0-37.5°C"
         )
     
-    st.markdown("---")
+    st.markdown("")
+    st.markdown("")
     
-    # Predict button
-    if st.button("🚀 ANALYZE PATIENT", type="primary", use_container_width=True):
-        with st.spinner("Analyzing patient data..."):
-            patient_data = {
-                'Age': age,
-                'Gender': gender,
-                'Systolic_BP': bp_sys,
-                'Diastolic_BP': bp_dia,
-                'Heart_Rate': hr,
-                'Temperature': temp,
-                'Symptoms': symptom,
-                'Pre_Existing': pre_existing
+    # Continue button
+    if st.button("Continue →", key="vitals_continue"):
+        next_step()
+        st.rerun()
+
+# ============================================================================
+# STEP 2: SYMPTOMS
+# ============================================================================
+elif st.session_state.step == 2:
+    st.markdown("## Select Symptoms")
+    st.markdown("*Choose all that apply*")
+    st.markdown("")
+    
+    # Get available symptoms from model
+    all_symptoms = sorted(models['le_symptoms'].classes_)
+    
+    # Display in 3 columns
+    cols = st.columns(3)
+    
+    for i, symptom in enumerate(all_symptoms[:18]):  # Show top 18 symptoms
+        with cols[i % 3]:
+            if st.checkbox(symptom, key=f"symptom_{symptom}"):
+                if symptom not in st.session_state.form_data['symptoms']:
+                    st.session_state.form_data['symptoms'].append(symptom)
+            else:
+                if symptom in st.session_state.form_data['symptoms']:
+                    st.session_state.form_data['symptoms'].remove(symptom)
+    
+    st.markdown("")
+    st.markdown("")
+    
+    # Navigation buttons
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button("← Previous", key="symptoms_prev"):
+            prev_step()
+            st.rerun()
+    with col2:
+        if st.button("Continue →", key="symptoms_next"):
+            if not st.session_state.form_data['symptoms']:
+                st.warning("⚠️ Please select at least one symptom")
+            else:
+                next_step()
+                st.rerun()
+
+# ============================================================================
+# STEP 3: HISTORY
+# ============================================================================
+elif st.session_state.step == 3:
+    st.markdown("## Medical History")
+    st.markdown("*Pre-existing conditions*")
+    st.markdown("")
+    
+    # Get available conditions
+    all_conditions = sorted(models['le_pre_existing'].classes_)
+    
+    st.session_state.form_data['pre_existing'] = st.selectbox(
+        "Select Pre-Existing Condition",
+        options=all_conditions,
+        index=all_conditions.index(st.session_state.form_data['pre_existing']) 
+              if st.session_state.form_data['pre_existing'] in all_conditions else 0
+    )
+    
+    st.markdown("")
+    st.info("💡 Select 'No History' if patient has no pre-existing conditions")
+    
+    st.markdown("")
+    st.markdown("")
+    
+    # Navigation buttons
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button("← Previous", key="history_prev"):
+            prev_step()
+            st.rerun()
+    with col2:
+        if st.button("Analyze Patient →", key="history_analyze"):
+            next_step()
+            st.rerun()
+
+# ============================================================================
+# STEP 4: REVIEW & RESULTS
+# ============================================================================
+elif st.session_state.step == 4:
+    st.markdown("## 🎯 Analysis Results")
+    st.markdown("")
+    
+    # Make prediction
+    result = make_prediction(st.session_state.form_data)
+    
+    if 'error' in result:
+        st.error(f"Error: {result['error']}")
+        if st.button("← Go Back"):
+            prev_step()
+            st.rerun()
+    else:
+        # Display results in columns
+        col1, col2 = st.columns([1, 2])
+        
+        with col1:
+            # Risk Level
+            st.markdown("### Risk Classification")
+            risk = result['risk']
+            conf = result['risk_confidence']
+            
+            if risk == 'High':
+                st.markdown(f'<div class="risk-high">🔴 HIGH RISK<br/>{conf:.1f}% Confidence</div>', 
+                           unsafe_allow_html=True)
+            elif risk == 'Medium':
+                st.markdown(f'<div class="risk-medium">🟡 MEDIUM RISK<br/>{conf:.1f}% Confidence</div>', 
+                           unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div class="risk-low">🟢 LOW RISK<br/>{conf:.1f}% Confidence</div>', 
+                           unsafe_allow_html=True)
+            
+            st.markdown("")
+            
+            # Department
+            st.markdown("### Recommended Department")
+            st.markdown(f'<div class="dept-box">📍 {result["department"]}<br/>{result["dept_confidence"]:.1f}% Match</div>', 
+                       unsafe_allow_html=True)
+            
+            st.markdown("")
+            
+            # Probabilities
+            st.markdown("### Risk Probabilities")
+            for level in ['High', 'Medium', 'Low']:
+                prob = result['risk_probs'].get(level, 0)
+                icon = "🔴" if level == 'High' else "🟡" if level == 'Medium' else "🟢"
+                st.metric(f"{icon} {level}", f"{prob:.1f}%")
+        
+        with col2:
+            # Clinical Recommendations
+            st.markdown("### 🏥 Clinical Recommendations")
+            
+            if risk == 'High':
+                st.error("""
+                **🔴 IMMEDIATE ACTION REQUIRED**
+                
+                **Priority:** ESI Level 1 (Resuscitation)
+                
+                **Actions:**
+                - Immediate trauma bay assignment
+                - Alert attending physician
+                - Prepare emergency equipment
+                - Continuous monitoring required
+                - IV access (2 large-bore)
+                
+                **Target:** Physician evaluation IMMEDIATELY
+                """)
+            elif risk == 'Medium':
+                st.warning("""
+                **🟡 URGENT ASSESSMENT NEEDED**
+                
+                **Priority:** ESI Level 2-3 (Emergent/Urgent)
+                
+                **Actions:**
+                - Move to urgent care area
+                - Vitals every 15-30 minutes
+                - Priority physician evaluation
+                - Prepare for diagnostic workup
+                
+                **Target:** Physician evaluation within 15-30 minutes
+                """)
+            else:
+                st.success("""
+                **🟢 ROUTINE PROCESSING**
+                
+                **Priority:** ESI Level 4-5 (Less/Non-Urgent)
+                
+                **Actions:**
+                - Assign to general waiting area
+                - Standard monitoring protocol
+                - Process in queue order
+                
+                **Expected Wait:** 1-2 hours
+                """)
+        
+        # Contributing Factors
+        st.markdown("---")
+        st.markdown("## 💡 Why This Classification?")
+        
+        exp_col1, exp_col2 = st.columns(2)
+        
+        with exp_col1:
+            st.markdown("### Contributing Factors")
+            for factor in result['factors']:
+                st.markdown(f'<div class="factor-box">{factor}</div>', unsafe_allow_html=True)
+        
+        with exp_col2:
+            st.markdown("### Patient Summary")
+            
+            summary_data = {
+                'Field': ['Age', 'Gender', 'Blood Pressure', 'Heart Rate', 'Temperature', 
+                         'Symptoms', 'Pre-Existing'],
+                'Value': [
+                    f"{st.session_state.form_data['age']} years",
+                    st.session_state.form_data['gender'],
+                    f"{st.session_state.form_data['systolic_bp']}/{st.session_state.form_data['diastolic_bp']} mmHg",
+                    f"{st.session_state.form_data['heart_rate']} BPM",
+                    f"{st.session_state.form_data['temperature']}°C",
+                    ', '.join(st.session_state.form_data['symptoms'][:3]) + ('...' if len(st.session_state.form_data['symptoms']) > 3 else ''),
+                    st.session_state.form_data['pre_existing']
+                ]
             }
             
-            result = make_prediction(patient_data)
-            
-            if 'error' in result:
-                st.error(f"Error: {result['error']}")
-            else:
-                st.markdown("---")
-                st.markdown("## 🎯 Assessment Results")
-                
-                # Results layout
-                res_col1, res_col2, res_col3 = st.columns([1, 2, 1])
-                
-                with res_col1:
-                    st.markdown("### Risk Classification")
-                    risk = result['risk_level']
-                    conf = result['risk_confidence']
-                    
-                    if risk == 'High':
-                        st.markdown(f'<div class="risk-high">🔴 HIGH RISK<br/>{conf:.1f}%</div>', 
-                                   unsafe_allow_html=True)
-                    elif risk == 'Medium':
-                        st.markdown(f'<div class="risk-medium">🟡 MEDIUM RISK<br/>{conf:.1f}%</div>', 
-                                   unsafe_allow_html=True)
-                    else:
-                        st.markdown(f'<div class="risk-low">🟢 LOW RISK<br/>{conf:.1f}%</div>', 
-                                   unsafe_allow_html=True)
-                    
-                    st.markdown("---")
-                    st.markdown(f"**Department:**")
-                    st.info(f"📍 {result['department']}")
-                    st.metric("Confidence", f"{result['dept_confidence']:.1f}%")
-                
-                with res_col2:
-                    st.markdown("### 🏥 Clinical Recommendations")
-                    
-                    if risk == 'High':
-                        st.error("""
-                        **🔴 IMMEDIATE ACTION REQUIRED**
-                        
-                        **Priority:** ESI Level 1 (Resuscitation)
-                        
-                        **Actions:**
-                        - Immediate trauma bay/resuscitation room
-                        - Alert attending physician
-                        - Prepare emergency equipment
-                        - Continuous monitoring
-                        - IV access (2 large-bore)
-                        
-                        **Target:** Physician evaluation IMMEDIATELY
-                        """)
-                    elif risk == 'Medium':
-                        st.warning("""
-                        **🟡 URGENT ASSESSMENT**
-                        
-                        **Priority:** ESI Level 2-3 (Emergent/Urgent)
-                        
-                        **Actions:**
-                        - Move to urgent care area
-                        - Vitals every 15-30 minutes
-                        - Priority physician evaluation
-                        - Prepare for diagnostic workup
-                        
-                        **Target:** Physician evaluation within 15-30 min
-                        """)
-                    else:
-                        st.success("""
-                        **🟢 ROUTINE PROCESSING**
-                        
-                        **Priority:** ESI Level 4-5 (Less/Non-Urgent)
-                        
-                        **Actions:**
-                        - Assign to general waiting area
-                        - Standard monitoring protocol
-                        - Process in queue order
-                        
-                        **Expected Wait:** 1-2 hours
-                        """)
-                
-                with res_col3:
-                    st.markdown("### 📊 Risk Probabilities")
-                    
-                    for level in ['High', 'Medium', 'Low']:
-                        prob = result['risk_probabilities'].get(level, 0)
-                        if level == 'High':
-                            st.metric("🔴 High", f"{prob:.1f}%")
-                        elif level == 'Medium':
-                            st.metric("🟡 Medium", f"{prob:.1f}%")
-                        else:
-                            st.metric("🟢 Low", f"{prob:.1f}%")
-                
-                # Explainability section
-                st.markdown("---")
-                st.markdown("## 💡 Why This Classification?")
-                
-                exp_col1, exp_col2 = st.columns(2)
-                
-                with exp_col1:
-                    st.markdown("### Contributing Factors")
-                    for factor in result['factors']:
-                        st.markdown(f'<div class="factor-box">{factor}</div>', 
-                                   unsafe_allow_html=True)
-                
-                with exp_col2:
-                    st.markdown("### Feature Importance (Risk)")
-                    
-                    # Create bar chart
-                    importance_df = pd.DataFrame({
-                        'Feature': list(result['risk_importance'].keys()),
-                        'Importance': list(result['risk_importance'].values())
-                    }).sort_values('Importance', ascending=True)
-                    
-                    fig = go.Figure(go.Bar(
-                        x=importance_df['Importance'],
-                        y=importance_df['Feature'],
-                        orientation='h',
-                        marker=dict(color='#1f77b4')
-                    ))
-                    fig.update_layout(
-                        height=400,
-                        margin=dict(l=0, r=0, t=0, b=0),
-                        xaxis_title="Importance (%)",
-                        yaxis_title=""
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
-                
-                # Patient Summary
-                with st.expander("📋 Complete Patient Summary"):
-                    sum_col1, sum_col2, sum_col3 = st.columns(3)
-                    
-                    with sum_col1:
-                        st.markdown("**Demographics**")
-                        st.write(f"Age: {age} years")
-                        st.write(f"Gender: {gender}")
-                    
-                    with sum_col2:
-                        st.markdown("**Vital Signs**")
-                        st.write(f"BP: {bp_sys}/{bp_dia} mmHg")
-                        st.write(f"HR: {hr} BPM")
-                        st.write(f"Temp: {temp}°C")
-                    
-                    with sum_col3:
-                        st.markdown("**Clinical**")
-                        st.write(f"Symptom: {symptom}")
-                        st.write(f"History: {pre_existing}")
-
-# ============================================================================
-# TAB 2: SYSTEM PERFORMANCE
-# ============================================================================
-with tab2:
-    st.markdown("### 🎯 AI Model Performance")
-    
-    perf_col1, perf_col2, perf_col3, perf_col4 = st.columns(4)
-    
-    with perf_col1:
-        st.metric("Risk Accuracy", "99.93%", "+1.8%")
-    with perf_col2:
-        st.metric("Dept Accuracy", "98.57%", "+1.2%")
-    with perf_col3:
-        st.metric("Avg Confidence", "99.4%", "")
-    with perf_col4:
-        st.metric("Training Samples", "12,008", "")
-    
-    st.markdown("---")
-    
-    # Performance by class
-    st.markdown("### 📊 Performance by Risk Level")
-    
-    perf_data = pd.DataFrame({
-        'Risk Level': ['High', 'Medium', 'Low'],
-        'Precision (%)': [100.0, 99.8, 100.0],
-        'Recall (%)': [100.0, 100.0, 99.9],
-        'F1-Score (%)': [100.0, 99.9, 99.9],
-        'Avg Confidence (%)': [99.5, 99.3, 99.7]
-    })
-    
-    st.dataframe(perf_data, use_container_width=True, hide_index=True)
-    
-    st.markdown("---")
-    
-    # Feature importance comparison
-    st.markdown("### 🔬 Feature Importance Comparison")
-    
-    chart_col1, chart_col2 = st.columns(2)
-    
-    with chart_col1:
-        st.markdown("#### Risk Classification")
-        st.markdown("""
-        1. **Systolic BP** (37.5%) - Primary indicator
-        2. **Heart Rate** (21.3%) - Secondary vital
-        3. **Diastolic BP** (20.2%) - BP stability
-        4. **Temperature** (8.4%) - Infection marker
-        5. **Age** (6.5%) - Baseline risk
-        """)
-    
-    with chart_col2:
-        st.markdown("#### Department Routing")
-        st.markdown("""
-        1. **Symptoms** (48.9%) - Primary routing factor
-        2. **Systolic BP** (14.5%) - Emergency indicator
-        3. **Heart Rate** (12.4%) - Cardiac concerns
-        4. **Diastolic BP** (9.3%) - BP evaluation
-        5. **Temperature** (7.6%) - Infection routing
-        """)
-    
-    st.markdown("---")
-    
-    # Dataset info
-    st.markdown("### 📚 Training Dataset Statistics")
-    
-    data_col1, data_col2 = st.columns(2)
-    
-    with data_col1:
-        st.markdown("**Risk Distribution**")
-        st.write("- High: 4,957 (33.0%)")
-        st.write("- Medium: 4,952 (33.0%)")
-        st.write("- Low: 5,101 (34.0%)")
-        st.write("- **Total: 15,010 patients**")
-    
-    with data_col2:
-        st.markdown("**Top Departments**")
-        st.write("- General Medicine: 37.5%")
-        st.write("- Emergency: 33.0%")
-        st.write("- Gastroenterology: 10.5%")
-        st.write("- Respiratory: 6.5%")
-
-# ============================================================================
-# TAB 3: ABOUT
-# ============================================================================
-with tab3:
-    st.markdown("### About This System")
-    
-    st.markdown("""
-    **AI Medical Triage System** is an advanced machine learning application designed to 
-    assist healthcare professionals in emergency department triage.
-    
-    #### 🎯 Purpose
-    - Rapid risk assessment (High/Medium/Low)
-    - Intelligent department routing
-    - Evidence-based decision support
-    - Reduced wait times for critical patients
-    
-    #### 🤖 Technology
-    - **Algorithm:** Random Forest Classifier (300 trees)
-    - **Training Data:** 15,010 realistic patient cases
-    - **Accuracy:** 99.93% (Risk), 98.57% (Department)
-    - **Features:** 8 clinical parameters
-    - **Explainability:** Full transparency with contributing factors
-    
-    #### 📊 Performance Highlights
-    - High Risk Detection: 100% precision, 100% recall
-    - Medium Risk Detection: 99.8% precision, 100% recall
-    - Low Risk Detection: 100% precision, 99.9% recall
-    - Average Confidence: 99.4%
-    
-    #### ⚕️ Clinical Integration
-    This system is designed to **assist**, not replace, clinical judgment. 
-    Final decisions should be made by qualified healthcare professionals.
-    
-    #### 🔒 Safety & Compliance
-    - Trained on medically accurate synthetic data
-    - Validated against clinical guidelines
-    - Transparent decision-making
-    - Continuous monitoring capability
-    
-    #### 💡 Key Features
-    - Real-time risk assessment
-    - Department recommendation
-    - Explainable AI decisions
-    - Feature importance analysis
-    - Confidence scoring
-    - Batch processing capability
-    
-    ---
-    
-    **Version:** 1.0.0  
-    **Last Updated:** February 2026  
-    **Status:** ✅ Production Ready
-    """)
-
-# ============================================================================
-# TAB 4: BATCH ANALYSIS
-# ============================================================================
-with tab4:
-    st.markdown("### 📊 Batch Patient Analysis")
-    
-    st.info("Upload a CSV file with patient data to analyze multiple patients at once.")
-    
-    st.markdown("""
-    **Required CSV columns:**
-    - Age, Gender, Systolic_BP, Diastolic_BP, Heart_Rate, Temperature, Symptoms, Pre_Existing
-    """)
-    
-    uploaded_file = st.file_uploader("Upload Patient CSV", type=['csv'])
-    
-    if uploaded_file is not None:
-        try:
-            batch_df = pd.read_csv(uploaded_file)
-            
-            st.success(f"✓ Loaded {len(batch_df)} patients")
-            
-            if st.button("🚀 Analyze All Patients"):
-                with st.spinner("Processing patients..."):
-                    results = []
-                    
-                    for idx, row in batch_df.iterrows():
-                        patient_data = row.to_dict()
-                        result = make_prediction(patient_data)
-                        
-                        if 'error' not in result:
-                            results.append({
-                                'Patient': idx + 1,
-                                'Age': patient_data['Age'],
-                                'Gender': patient_data['Gender'],
-                                'Symptoms': patient_data['Symptoms'],
-                                'Risk Level': result['risk_level'],
-                                'Risk Confidence': f"{result['risk_confidence']:.1f}%",
-                                'Department': result['department'],
-                                'Dept Confidence': f"{result['dept_confidence']:.1f}%"
-                            })
-                    
-                    results_df = pd.DataFrame(results)
-                    
-                    st.markdown("### 📋 Analysis Results")
-                    st.dataframe(results_df, use_container_width=True, hide_index=True)
-                    
-                    # Summary statistics
-                    st.markdown("### 📊 Summary Statistics")
-                    
-                    sum_col1, sum_col2 = st.columns(2)
-                    
-                    with sum_col1:
-                        st.markdown("**Risk Distribution**")
-                        risk_counts = results_df['Risk Level'].value_counts()
-                        for level, count in risk_counts.items():
-                            pct = count / len(results_df) * 100
-                            st.write(f"{level}: {count} ({pct:.1f}%)")
-                    
-                    with sum_col2:
-                        st.markdown("**Department Distribution**")
-                        dept_counts = results_df['Department'].value_counts()
-                        for dept, count in dept_counts.head(5).items():
-                            pct = count / len(results_df) * 100
-                            st.write(f"{dept}: {count} ({pct:.1f}%)")
-                    
-                    # Download results
-                    csv = results_df.to_csv(index=False)
-                    st.download_button(
-                        "📥 Download Results",
-                        csv,
-                        "triage_results.csv",
-                        "text/csv",
-                        use_container_width=True
-                    )
+            summary_df = pd.DataFrame(summary_data)
+            st.dataframe(summary_df, use_container_width=True, hide_index=True)
         
-        except Exception as e:
-            st.error(f"Error processing file: {e}")
-
-# ============================================================================
-# SIDEBAR
-# ============================================================================
-with st.sidebar:
-    st.markdown("### 📊 Quick Stats")
-    st.metric("Risk Accuracy", "99.93%")
-    st.metric("Dept Accuracy", "98.57%")
-    st.metric("Training Patients", "15,010")
-    
-    st.markdown("---")
-    
-    st.markdown("### 🎯 ESI Levels")
-    st.markdown("""
-    **Level 1 (High Risk)**
-    - Immediate life threat
-    - 0-minute target
-    
-    **Level 2-3 (Medium Risk)**
-    - Urgent assessment
-    - 15-30 minute target
-    
-    **Level 4-5 (Low Risk)**
-    - Routine processing
-    - 1-2 hour acceptable
-    """)
-    
-    st.markdown("---")
-    
-    st.markdown("### 🏥 Departments")
-    st.markdown("""
-    - Emergency
-    - Cardiology
-    - Neurology
-    - Respiratory
-    - Gastroenterology
-    - Orthopedics
-    - General Medicine
-    - Pediatrics
-    """)
-    
-    st.markdown("---")
-    st.caption("AI Triage System v1.0")
-    st.caption("© 2026 - Hackathon Edition")
+        # Action buttons
+        st.markdown("")
+        st.markdown("---")
+        
+        btn_col1, btn_col2, btn_col3 = st.columns(3)
+        
+        with btn_col1:
+            if st.button("← Previous", key="results_prev"):
+                prev_step()
+                st.rerun()
+        
+        with btn_col2:
+            if st.button("🔄 New Patient", key="results_reset"):
+                reset_form()
+                st.rerun()
+        
+        with btn_col3:
+            st.success("✅ Assessment Complete")
 
 # ============================================================================
 # FOOTER
 # ============================================================================
+st.markdown("")
 st.markdown("---")
 st.markdown("""
-<div style='text-align: center; color: #666;'>
-    <p><strong>⚠️ Medical Disclaimer:</strong> This tool is for demonstration and decision 
-    support only. All medical decisions must be made by qualified healthcare professionals.</p>
-    <p><em>AI Medical Triage System | Powered by Machine Learning</em></p>
+<div style='text-align: center; color: #666; padding: 1rem;'>
+    <p style='margin: 0; font-size: 0.9rem;'>
+        <strong>⚠️ Medical Disclaimer:</strong> This tool is for demonstration purposes only.
+    </p>
+    <p style='margin: 0.5rem 0 0 0; font-size: 0.85rem;'>
+        <em>MedTouch.ai v1.0 | AI-Powered Triage System</em>
+    </p>
 </div>
 """, unsafe_allow_html=True)
