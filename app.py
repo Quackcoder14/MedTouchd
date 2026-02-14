@@ -41,7 +41,8 @@ if st.button("RUN AI TRIAGE ANALYSIS"):
     s_enc = le_symptoms.transform([symptom])[0]
     p_enc = le_pre.transform([history])[0]
     
-    features = np.array([[age, g_enc, bp, hr, s_enc, p_enc]])
+    features = pd.DataFrame([[age, g_enc, bp, hr, s_enc, p_enc]], 
+                            columns=['Age', 'Gender', 'Systolic_BP', 'Heart_Rate', 'Symptoms', 'Pre_Existing'])
     
     # Get Result
     prediction = model.predict(features)[0]
