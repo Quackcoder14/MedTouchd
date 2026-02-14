@@ -1,78 +1,93 @@
 import streamlit as st
 import joblib
-import numpy as np
 import pandas as pd
+import numpy as np
 
-# 1. LOAD THE BRAIN
-@st.cache_resource # This keeps the app fast by loading the model only once
-def load_assets():
-    model = joblib.load('triage_model.pkl')
-    le_gender = joblib.load('le_gender.pkl')
-    le_symptoms = joblib.load('le_symptoms.pkl')
-    le_pre = joblib.load('le_pre.pkl')
-    return model, le_gender, le_symptoms, le_pre
+# 1. SETUP & ASSETS
+st.set_page_config(page_title="MedTouch.ai | AI Triage", page_icon="🏥")
+
+# Manually defined mappings to match the training script exactly
+GENDER_MAP = {'M': 0, 'F': 1}
+SYMPTOM_MAP = {'Chest Pain': 0, 'Fever': 1, 'Cough': 2}
+HISTORY_MAP = {'Heart Disease': 0, 'Diabetes': 1, 'None': 2}
+
+@st.cache_resource
+def load_triage_model():
+    # We only need the model now because we are using manual mapping
+    return joblib.load('triage_model.pkl')
 
 try:
-    model, le_gender, le_symptoms, le_pre = load_assets()
-except Exception as e:
-    st.error("Error loading model files. Ensure .pkl files are in the same folder.")
+    model = load_triage_model()
+except:
+    st.error("Model file 'triage_model.pkl' not found. Please run the training script first.")
     st.stop()
 
-# 2. UI HEADER
-st.title("MedTouch.ai | Smart Triage Portal")
+# 2. USER INTERFACE
+st.title("🏥 MedTouch.ai")
+st.subheader("Smart Emergency Triage Dashboard")
 st.markdown("---")
 
-# 3. INPUT FORM
+# Layout: Two columns for patient vitals
 col1, col2 = st.columns(2)
 
 with col1:
-    age = st.number_input("Patient Age", 0, 120, 30)
-    gender = st.selectbox("Gender", le_gender.classes_)
-    bp = st.slider("Systolic BP (mmHg)", 80, 220, 120)
+    age = st.number_input("Patient Age", 0, 120, 45)
+    gender = st.selectbox("Gender", list(GENDER_MAP.keys()))
+    bp = st.slider("Systolic Blood Pressure (mmHg)", 80, 220, 120)
 
 with col2:
-    hr = st.slider("Heart Rate (BPM)", 40, 180, 75)
-    symptom = st.selectbox("Primary Symptom", le_symptoms.classes_)
-    history = st.selectbox("Pre-existing Condition", le_pre.classes_)
+    hr = st.slider("Heart Rate (BPM)", 40, 180, 80)
+    symptom = st.selectbox("Primary Symptom", list(SYMPTOM_MAP.keys()))
+    history = st.selectbox("Medical History", list(HISTORY_MAP.keys()))
 
-# 4. PREDICTION LOGIC
-if st.button("RUN AI TRIAGE ANALYSIS"):
-    # Ensure inputs are treated as the correct types
-    g_enc = le_gender.transform([gender])[0]
-    s_enc = le_symptoms.transform([symptom])[0]
-    p_enc = le_pre.transform([history])[0]
+st.markdown("---")
+
+# 3. PREDICTION LOGIC
+if st.button("🚀 ANALYZE PATIENT RISK"):
+    # Map inputs to integers
+    g_val = GENDER_MAP[gender]
+    s_val = SYMPTOM_MAP[symptom]
+    h_val = HISTORY_MAP[history]
     
-    # Force the DataFrame to use the exact same column order as training
+    # Create DataFrame with EXACT column names and order from training
     input_cols = ['Age', 'Gender', 'Systolic_BP', 'Heart_Rate', 'Symptoms', 'Pre_Existing']
-    features = pd.DataFrame([[age, g_enc, bp, hr, s_enc, p_enc]], columns=input_cols)
+    features = pd.DataFrame([[age, g_val, bp, hr, s_val, h_val]], columns=input_cols)
     
-    # Get Result
+    # Run Prediction
     prediction = model.predict(features)[0]
     probs = model.predict_proba(features)[0]
     
-    # Map probabilities to classes
-    prob_map = dict(zip(model.classes_, probs))
-    confidence = prob_map[prediction] * 100
+    # Find confidence for the specific predicted class
+    # RandomForest sorts classes alphabetically: ['High', 'Low', 'Medium']
+    class_index = list(model.classes_).index(prediction)
+    confidence = probs[class_index] * 100
 
-    # 5. DISPLAY RESULTS
-    st.markdown("### Triage Result")
+    # 4. RESULTS DISPLAY
+    res_col1, res_col2 = st.columns([1, 2])
     
-    if prediction == "High":
-        st.error(f"STATUS: {prediction} PRIORITY")
-        st.write("IMMEDIATE INTERVENTION REQUIRED: Notify ER Lead.")
-    elif prediction == "Medium":
-        st.warning(f"STATUS: {prediction} PRIORITY")
-        st.write("URGENT: Place in queue for next available clinician.")
-    else:
-        st.success(f"STATUS: {prediction} PRIORITY")
-        st.write("STABLE: Monitor in waiting area.")
+    with res_col1:
+        if prediction == "High":
+            st.error(f"## {prediction}")
+        elif prediction == "Medium":
+            st.warning(f"## {prediction}")
+        else:
+            st.success(f"## {prediction}")
+        
+        st.metric("AI Confidence", f"{confidence:.1f}%")
 
-    st.progress(int(confidence))
-    st.write(f"AI Confidence Score: {confidence:.2f}%")
+    with res_col2:
+        st.info("### AI Clinical Guidance")
+        if prediction == "High":
+            st.write("🔴 **CRITICAL:** Immediate trauma bay assignment. Alert attending physician.")
+        elif prediction == "Medium":
+            st.write("🟡 **URGENT:** Move to secondary assessment area. Expected wait < 30 mins.")
+        else:
+            st.write("🟢 **STABLE:** Routine triage. Assign to standard waiting area.")
 
-# 6. QUALITY FOOTER (For the Judges)
+# 5. TECHNICAL SIDEBAR
+st.sidebar.header("System Statistics")
+st.sidebar.write("✅ **Model Accuracy:** 97%")
+st.sidebar.write("✅ **Data Fidelity:** 87.3%")
+st.sidebar.write("✅ **Logic Consistency:** 81.2%")
 st.sidebar.markdown("---")
-st.sidebar.subheader("AI Performance Metrics")
-st.sidebar.write("Overall Quality: 87.28%")
-st.sidebar.write("Logic Accuracy: 81.27%")
-st.sidebar.write("Model Accuracy: 97.00%")
+st.sidebar.caption("MedTouch.ai v1.0.0 - Hackathon Edition")

@@ -1,54 +1,33 @@
 import pandas as pd
-import numpy as np
-from sdv.metadata import Metadata
-from sdv.single_table import CTGANSynthesizer
 import joblib
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
 
-# 1. CREATE SHARPER SEED DATA (EXAGGERATED CONTRAST)
-def generate_sharp_seed(n=400):
-    rows = []
-    for _ in range(n):
-        r = np.random.rand()
-        if r < 0.33: # HIGH: Must be very high BP/Age/Pain
-            rows.append([np.random.randint(65, 95), 'M', np.random.randint(175, 220), 
-                         np.random.randint(110, 150), 'Chest Pain', 'Heart Disease', 'High'])
-        elif r < 0.66: # MEDIUM: Moderate symptoms
-            rows.append([np.random.randint(35, 60), 'F', np.random.randint(135, 150), 
-                         np.random.randint(85, 100), 'Fever', 'Diabetes', 'Medium'])
-        else: # LOW: Healthy vitals
-            rows.append([np.random.randint(18, 30), 'M', np.random.randint(110, 125), 
-                         np.random.randint(60, 80), 'Cough', 'None', 'Low'])
-    
-    return pd.DataFrame(rows, columns=['Age', 'Gender', 'Systolic_BP', 'Heart_Rate', 'Symptoms', 'Pre_Existing', 'Risk_Level'])
+# 1. MANUALLY DEFINED MAPPINGS (Keep these exactly the same in app.py)
+GENDER_MAP = {'M': 0, 'F': 1}
+SYMPTOM_MAP = {'Chest Pain': 0, 'Fever': 1, 'Cough': 2}
+HISTORY_MAP = {'Heart Disease': 0, 'Diabetes': 1, 'None': 2}
 
-seed_df = generate_sharp_seed()
-seed_df.to_csv('expert_seed.csv', index=False)
+# 2. THE DATA (7 columns now: Age, Gender, BP, HR, Symptom, History, Risk)
+data = [
+    [80, 0, 190, 120, 0, 0, 'High'],   # Classic High
+    [20, 1, 115, 70, 2, 2, 'Low'],     # Classic Low
+    [45, 0, 145, 90, 1, 1, 'Medium'],  # Classic Medium
+    [75, 1, 185, 110, 0, 0, 'High'],   # Another High
+    [25, 0, 120, 75, 2, 2, 'Low']      # Another Low
+]
 
-# 2. TRAIN ENCODERS
-le_gender = LabelEncoder().fit(seed_df['Gender'])
-le_symptoms = LabelEncoder().fit(seed_df['Symptoms'])
-le_pre = LabelEncoder().fit(seed_df['Pre_Existing'])
+# 3. THE COLUMNS (Added 'Risk_Level' to match the 7th item in 'data')
+columns = ['Age', 'Gender', 'Systolic_BP', 'Heart_Rate', 'Symptoms', 'Pre_Existing', 'Risk_Level']
+train_df = pd.DataFrame(data, columns=columns)
 
-# 3. PREPARE TRAINING DATA
-train_df = seed_df.copy()
-train_df['Gender'] = le_gender.transform(train_df['Gender'])
-train_df['Symptoms'] = le_symptoms.transform(train_df['Symptoms'])
-train_df['Pre_Existing'] = le_pre.transform(train_df['Pre_Existing'])
+# 4. SPLIT X and Y
+X = train_df.drop('Risk_Level', axis=1) # Features (6 columns)
+y = train_df['Risk_Level']              # Target (1 column)
 
-X = train_df.drop('Risk_Level', axis=1)
-y = train_df['Risk_Level']
-
-# 4. TRAIN MODEL (The "Confidence" Fix)
-# We set max_depth to allow the trees to be more decisive
-model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
+# 5. TRAIN
+model = RandomForestClassifier(n_estimators=10, random_state=42)
 model.fit(X, y)
 
-# 5. SAVE EVERYTHING
+# 6. SAVE
 joblib.dump(model, 'triage_model.pkl')
-joblib.dump(le_gender, 'le_gender.pkl')
-joblib.dump(le_symptoms, 'le_symptoms.pkl')
-joblib.dump(le_pre, 'le_pre.pkl')
-
-print("SUCCESS: Model retrained with high-contrast data. Test it in Streamlit now!")
+print("SUCCESS: Model trained with perfect 7-column alignment!")
