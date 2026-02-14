@@ -36,17 +36,22 @@ with col2:
 
 # 4. PREDICTION LOGIC
 if st.button("RUN AI TRIAGE ANALYSIS"):
-    # Transform inputs
+    # Ensure inputs are treated as the correct types
     g_enc = le_gender.transform([gender])[0]
     s_enc = le_symptoms.transform([symptom])[0]
     p_enc = le_pre.transform([history])[0]
     
-    features = np.array([[age, g_enc, bp, hr, s_enc, p_enc]])
+    # Force the DataFrame to use the exact same column order as training
+    input_cols = ['Age', 'Gender', 'Systolic_BP', 'Heart_Rate', 'Symptoms', 'Pre_Existing']
+    features = pd.DataFrame([[age, g_enc, bp, hr, s_enc, p_enc]], columns=input_cols)
     
     # Get Result
     prediction = model.predict(features)[0]
-    prob = model.predict_proba(features)[0]
-    confidence = np.max(prob) * 100
+    probs = model.predict_proba(features)[0]
+    
+    # Map probabilities to classes
+    prob_map = dict(zip(model.classes_, probs))
+    confidence = prob_map[prediction] * 100
 
     # 5. DISPLAY RESULTS
     st.markdown("### Triage Result")
