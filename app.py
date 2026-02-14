@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 import numpy as np
+import pandas as pd
 
 # 1. LOAD THE BRAIN
 @st.cache_resource # This keeps the app fast by loading the model only once
