@@ -1,0 +1,301 @@
+Age,Gender,Systolic_BP,Heart_Rate,Symptoms,Pre_Existing,Risk_Level
+20,M,114,60,Cough,None,Low
+61,M,182,104,Chest Pain,Heart Disease,High
+30,M,111,61,Cough,None,Low
+34,M,115,72,Cough,None,Low
+47,F,136,97,Fever,Diabetes,Medium
+24,M,118,67,Cough,None,Low
+19,M,117,65,Cough,None,Low
+25,M,116,74,Cough,None,Low
+59,F,153,96,Fever,Diabetes,Medium
+29,M,121,74,Cough,None,Low
+66,M,165,116,Chest Pain,Heart Disease,High
+79,M,198,113,Chest Pain,Heart Disease,High
+89,M,198,105,Chest Pain,Heart Disease,High
+30,M,119,71,Cough,None,Low
+45,F,153,95,Fever,Diabetes,Medium
+24,M,117,75,Cough,None,Low
+54,F,135,99,Fever,Diabetes,Medium
+35,F,153,97,Fever,Diabetes,Medium
+37,F,154,92,Fever,Diabetes,Medium
+44,F,147,89,Fever,Diabetes,Medium
+54,F,142,88,Fever,Diabetes,Medium
+34,M,118,78,Cough,None,Low
+23,M,117,79,Cough,None,Low
+44,F,150,87,Fever,Diabetes,Medium
+55,F,145,98,Fever,Diabetes,Medium
+34,M,110,70,Cough,None,Low
+43,F,153,91,Fever,Diabetes,Medium
+71,M,187,138,Chest Pain,Heart Disease,High
+50,F,144,86,Fever,Diabetes,Medium
+75,M,207,112,Chest Pain,Heart Disease,High
+33,M,119,73,Cough,None,Low
+23,M,122,70,Cough,None,Low
+23,M,113,77,Cough,None,Low
+61,M,183,133,Chest Pain,Heart Disease,High
+50,F,146,86,Fever,Diabetes,Medium
+67,M,192,101,Chest Pain,Heart Disease,High
+37,F,143,85,Fever,Diabetes,Medium
+47,F,154,87,Fever,Diabetes,Medium
+37,F,149,86,Fever,Diabetes,Medium
+82,M,166,108,Chest Pain,Heart Disease,High
+24,M,114,79,Cough,None,Low
+61,M,173,110,Chest Pain,Heart Disease,High
+73,M,207,102,Chest Pain,Heart Disease,High
+58,F,138,86,Fever,Diabetes,Medium
+38,F,135,98,Fever,Diabetes,Medium
+70,M,197,117,Chest Pain,Heart Disease,High
+56,F,143,93,Fever,Diabetes,Medium
+22,M,124,78,Cough,None,Low
+45,F,152,99,Fever,Diabetes,Medium
+40,F,146,99,Fever,Diabetes,Medium
+25,M,118,68,Cough,None,Low
+40,F,144,92,Fever,Diabetes,Medium
+76,M,208,130,Chest Pain,Heart Disease,High
+73,M,184,103,Chest Pain,Heart Disease,High
+60,M,194,100,Chest Pain,Heart Disease,High
+28,M,124,66,Cough,None,Low
+53,F,137,90,Fever,Diabetes,Medium
+28,M,111,72,Cough,None,Low
+53,F,152,98,Fever,Diabetes,Medium
+18,M,116,60,Cough,None,Low
+73,M,168,116,Chest Pain,Heart Disease,High
+71,M,192,133,Chest Pain,Heart Disease,High
+22,M,124,63,Cough,None,Low
+45,F,147,93,Fever,Diabetes,Medium
+29,M,120,73,Cough,None,Low
+73,M,180,106,Chest Pain,Heart Disease,High
+55,F,136,98,Fever,Diabetes,Medium
+23,M,123,72,Cough,None,Low
+86,M,209,116,Chest Pain,Heart Disease,High
+68,M,189,128,Chest Pain,Heart Disease,High
+32,M,120,66,Cough,None,Low
+27,M,121,66,Cough,None,Low
+35,F,146,85,Fever,Diabetes,Medium
+54,F,136,95,Fever,Diabetes,Medium
+43,F,145,99,Fever,Diabetes,Medium
+72,M,203,104,Chest Pain,Heart Disease,High
+45,F,137,86,Fever,Diabetes,Medium
+34,M,123,67,Cough,None,Low
+42,F,141,96,Fever,Diabetes,Medium
+72,M,208,122,Chest Pain,Heart Disease,High
+38,F,148,94,Fever,Diabetes,Medium
+36,F,139,91,Fever,Diabetes,Medium
+21,M,115,78,Cough,None,Low
+62,M,170,100,Chest Pain,Heart Disease,High
+22,M,119,77,Cough,None,Low
+65,M,209,111,Chest Pain,Heart Disease,High
+86,M,206,116,Chest Pain,Heart Disease,High
+20,M,117,76,Cough,None,Low
+53,F,138,92,Fever,Diabetes,Medium
+21,M,111,60,Cough,None,Low
+84,M,209,114,Chest Pain,Heart Disease,High
+54,F,153,90,Fever,Diabetes,Medium
+51,F,139,99,Fever,Diabetes,Medium
+82,M,185,114,Chest Pain,Heart Disease,High
+66,M,199,131,Chest Pain,Heart Disease,High
+86,M,208,133,Chest Pain,Heart Disease,High
+33,M,110,67,Cough,None,Low
+54,F,135,87,Fever,Diabetes,Medium
+25,M,123,61,Cough,None,Low
+69,M,195,118,Chest Pain,Heart Disease,High
+39,F,144,87,Fever,Diabetes,Medium
+33,M,116,66,Cough,None,Low
+67,M,184,108,Chest Pain,Heart Disease,High
+86,M,170,130,Chest Pain,Heart Disease,High
+39,F,151,97,Fever,Diabetes,Medium
+37,F,137,91,Fever,Diabetes,Medium
+77,M,205,102,Chest Pain,Heart Disease,High
+66,M,182,126,Chest Pain,Heart Disease,High
+49,F,150,85,Fever,Diabetes,Medium
+68,M,195,127,Chest Pain,Heart Disease,High
+82,M,191,121,Chest Pain,Heart Disease,High
+70,M,205,100,Chest Pain,Heart Disease,High
+18,M,112,76,Cough,None,Low
+61,M,179,127,Chest Pain,Heart Disease,High
+39,F,147,93,Fever,Diabetes,Medium
+66,M,184,126,Chest Pain,Heart Disease,High
+57,F,140,87,Fever,Diabetes,Medium
+84,M,200,130,Chest Pain,Heart Disease,High
+23,M,120,61,Cough,None,Low
+51,F,146,85,Fever,Diabetes,Medium
+39,F,144,97,Fever,Diabetes,Medium
+37,F,139,86,Fever,Diabetes,Medium
+88,M,185,131,Chest Pain,Heart Disease,High
+87,M,170,135,Chest Pain,Heart Disease,High
+69,M,201,109,Chest Pain,Heart Disease,High
+68,M,194,127,Chest Pain,Heart Disease,High
+31,M,123,61,Cough,None,Low
+77,M,178,126,Chest Pain,Heart Disease,High
+68,M,173,110,Chest Pain,Heart Disease,High
+75,M,182,112,Chest Pain,Heart Disease,High
+86,M,188,129,Chest Pain,Heart Disease,High
+58,F,135,87,Fever,Diabetes,Medium
+37,F,154,89,Fever,Diabetes,Medium
+25,M,121,61,Cough,None,Low
+59,F,138,96,Fever,Diabetes,Medium
+82,M,194,120,Chest Pain,Heart Disease,High
+69,M,194,129,Chest Pain,Heart Disease,High
+82,M,165,126,Chest Pain,Heart Disease,High
+75,M,168,121,Chest Pain,Heart Disease,High
+25,M,123,68,Cough,None,Low
+34,M,113,75,Cough,None,Low
+77,M,180,100,Chest Pain,Heart Disease,High
+68,M,187,124,Chest Pain,Heart Disease,High
+59,F,152,97,Fever,Diabetes,Medium
+70,M,204,102,Chest Pain,Heart Disease,High
+73,M,203,133,Chest Pain,Heart Disease,High
+41,F,135,88,Fever,Diabetes,Medium
+63,M,183,112,Chest Pain,Heart Disease,High
+45,F,138,96,Fever,Diabetes,Medium
+67,M,179,101,Chest Pain,Heart Disease,High
+42,F,149,89,Fever,Diabetes,Medium
+84,M,180,112,Chest Pain,Heart Disease,High
+24,M,111,77,Cough,None,Low
+18,M,111,78,Cough,None,Low
+19,M,121,70,Cough,None,Low
+51,F,143,89,Fever,Diabetes,Medium
+80,M,176,124,Chest Pain,Heart Disease,High
+23,M,114,77,Cough,None,Low
+61,M,207,138,Chest Pain,Heart Disease,High
+85,M,182,133,Chest Pain,Heart Disease,High
+28,M,114,72,Cough,None,Low
+59,F,152,88,Fever,Diabetes,Medium
+81,M,186,127,Chest Pain,Heart Disease,High
+21,M,113,78,Cough,None,Low
+48,F,140,93,Fever,Diabetes,Medium
+18,M,113,67,Cough,None,Low
+21,M,123,67,Cough,None,Low
+32,M,123,74,Cough,None,Low
+81,M,191,110,Chest Pain,Heart Disease,High
+29,M,124,71,Cough,None,Low
+25,M,120,75,Cough,None,Low
+85,M,209,124,Chest Pain,Heart Disease,High
+26,M,112,64,Cough,None,Low
+56,F,146,96,Fever,Diabetes,Medium
+18,M,119,62,Cough,None,Low
+48,F,138,90,Fever,Diabetes,Medium
+87,M,192,116,Chest Pain,Heart Disease,High
+19,M,121,66,Cough,None,Low
+33,M,111,69,Cough,None,Low
+28,M,117,72,Cough,None,Low
+42,F,144,98,Fever,Diabetes,Medium
+53,F,153,86,Fever,Diabetes,Medium
+78,M,169,134,Chest Pain,Heart Disease,High
+55,F,145,89,Fever,Diabetes,Medium
+31,M,115,73,Cough,None,Low
+67,M,172,127,Chest Pain,Heart Disease,High
+24,M,115,70,Cough,None,Low
+78,M,169,122,Chest Pain,Heart Disease,High
+40,F,149,88,Fever,Diabetes,Medium
+34,M,118,62,Cough,None,Low
+36,F,147,86,Fever,Diabetes,Medium
+56,F,139,87,Fever,Diabetes,Medium
+32,M,117,73,Cough,None,Low
+24,M,117,70,Cough,None,Low
+40,F,141,94,Fever,Diabetes,Medium
+86,M,199,119,Chest Pain,Heart Disease,High
+22,M,111,63,Cough,None,Low
+84,M,207,127,Chest Pain,Heart Disease,High
+40,F,147,90,Fever,Diabetes,Medium
+53,F,138,87,Fever,Diabetes,Medium
+33,M,116,66,Cough,None,Low
+74,M,175,135,Chest Pain,Heart Disease,High
+29,M,112,75,Cough,None,Low
+31,M,115,65,Cough,None,Low
+32,M,113,74,Cough,None,Low
+85,M,179,108,Chest Pain,Heart Disease,High
+89,M,191,120,Chest Pain,Heart Disease,High
+56,F,139,91,Fever,Diabetes,Medium
+58,F,147,91,Fever,Diabetes,Medium
+32,M,121,64,Cough,None,Low
+73,M,196,126,Chest Pain,Heart Disease,High
+18,M,120,76,Cough,None,Low
+73,M,197,122,Chest Pain,Heart Disease,High
+32,M,124,73,Cough,None,Low
+54,F,147,94,Fever,Diabetes,Medium
+38,F,144,86,Fever,Diabetes,Medium
+23,M,123,61,Cough,None,Low
+33,M,113,75,Cough,None,Low
+29,M,116,67,Cough,None,Low
+49,F,148,93,Fever,Diabetes,Medium
+33,M,111,77,Cough,None,Low
+59,F,152,98,Fever,Diabetes,Medium
+20,M,110,74,Cough,None,Low
+39,F,142,95,Fever,Diabetes,Medium
+39,F,140,86,Fever,Diabetes,Medium
+65,M,183,137,Chest Pain,Heart Disease,High
+29,M,114,76,Cough,None,Low
+32,M,120,65,Cough,None,Low
+30,M,119,70,Cough,None,Low
+55,F,143,96,Fever,Diabetes,Medium
+19,M,118,61,Cough,None,Low
+78,M,166,138,Chest Pain,Heart Disease,High
+52,F,142,98,Fever,Diabetes,Medium
+53,F,142,90,Fever,Diabetes,Medium
+76,M,204,107,Chest Pain,Heart Disease,High
+72,M,194,102,Chest Pain,Heart Disease,High
+32,M,116,72,Cough,None,Low
+21,M,115,66,Cough,None,Low
+61,M,192,137,Chest Pain,Heart Disease,High
+21,M,124,77,Cough,None,Low
+43,F,146,98,Fever,Diabetes,Medium
+32,M,120,60,Cough,None,Low
+72,M,192,136,Chest Pain,Heart Disease,High
+52,F,137,91,Fever,Diabetes,Medium
+24,M,114,68,Cough,None,Low
+70,M,209,130,Chest Pain,Heart Disease,High
+53,F,154,96,Fever,Diabetes,Medium
+46,F,153,92,Fever,Diabetes,Medium
+44,F,147,90,Fever,Diabetes,Medium
+40,F,138,92,Fever,Diabetes,Medium
+65,M,181,132,Chest Pain,Heart Disease,High
+34,M,114,60,Cough,None,Low
+65,M,177,105,Chest Pain,Heart Disease,High
+86,M,203,138,Chest Pain,Heart Disease,High
+26,M,119,68,Cough,None,Low
+79,M,203,124,Chest Pain,Heart Disease,High
+77,M,165,123,Chest Pain,Heart Disease,High
+20,M,122,78,Cough,None,Low
+84,M,190,119,Chest Pain,Heart Disease,High
+58,F,145,90,Fever,Diabetes,Medium
+37,F,138,96,Fever,Diabetes,Medium
+54,F,149,98,Fever,Diabetes,Medium
+22,M,119,72,Cough,None,Low
+48,F,136,97,Fever,Diabetes,Medium
+72,M,202,109,Chest Pain,Heart Disease,High
+36,F,143,96,Fever,Diabetes,Medium
+40,F,138,94,Fever,Diabetes,Medium
+69,M,195,131,Chest Pain,Heart Disease,High
+38,F,139,90,Fever,Diabetes,Medium
+36,F,144,85,Fever,Diabetes,Medium
+58,F,144,86,Fever,Diabetes,Medium
+44,F,145,86,Fever,Diabetes,Medium
+78,M,206,124,Chest Pain,Heart Disease,High
+59,F,137,90,Fever,Diabetes,Medium
+71,M,191,101,Chest Pain,Heart Disease,High
+79,M,208,123,Chest Pain,Heart Disease,High
+19,M,122,71,Cough,None,Low
+42,F,137,93,Fever,Diabetes,Medium
+23,M,118,67,Cough,None,Low
+62,M,201,130,Chest Pain,Heart Disease,High
+88,M,170,102,Chest Pain,Heart Disease,High
+29,M,114,62,Cough,None,Low
+73,M,172,133,Chest Pain,Heart Disease,High
+68,M,205,112,Chest Pain,Heart Disease,High
+34,M,112,76,Cough,None,Low
+22,M,124,76,Cough,None,Low
+34,M,120,67,Cough,None,Low
+77,M,168,104,Chest Pain,Heart Disease,High
+37,F,140,97,Fever,Diabetes,Medium
+87,M,169,103,Chest Pain,Heart Disease,High
+33,M,111,76,Cough,None,Low
+84,M,207,128,Chest Pain,Heart Disease,High
+65,M,198,116,Chest Pain,Heart Disease,High
+62,M,178,124,Chest Pain,Heart Disease,High
+32,M,110,74,Cough,None,Low
+34,M,114,63,Cough,None,Low
+82,M,194,112,Chest Pain,Heart Disease,High
+41,F,149,91,Fever,Diabetes,Medium
+30,M,119,72,Cough,None,Low
+28,M,111,74,Cough,None,Low
